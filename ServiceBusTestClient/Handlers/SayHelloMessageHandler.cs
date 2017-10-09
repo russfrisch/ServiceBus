@@ -13,7 +13,7 @@ namespace ServiceBusTestClient.Handlers
         {
         }
 
-        public Task Handle(SayHelloCommand message)
+        public void Handle(SayHelloCommand message)
         {
             Console.WriteLine($"Hello {message.Name}");
             return Task.CompletedTask;

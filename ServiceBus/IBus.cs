@@ -7,7 +7,7 @@ namespace ServiceBus
 {
     public interface IBus
     {
-        Task Send(ICommand message);
-        Task Publish(IEvent message);
+        Task SendAsync(ICommand message);
+        Task PublishAsync(IEvent message);
     }
 }

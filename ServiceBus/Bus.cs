@@ -6,10 +6,12 @@ using System.Threading.Tasks;
 
 namespace ServiceBus
 {
+
     public class Bus : IBus
     {
         private IEnumerable<ICommand> Commands { get; set; }
         private IEnumerable<IHandleMessages<ICommand>> CommandHandlers { get; set; }
+        private Dictionary<Type, IList<Action<ICommand>>> CommandSubscriptions { get; set; }
 
         public Bus()
         {
@@ -24,14 +26,24 @@ namespace ServiceBus
             Console.WriteLine($"Found {CommandHandlers.Count()} Command Handlers.");
         }
 
-        public Task Publish(IEvent message)
+        public void Subscribe(Type messageType, Action<ICommand> handler)
+        {
+            CommandSubscriptions[messageType].Add(handler);
+        }
+
+        public Task PublishAsync(IEvent message)
         {
             throw new NotImplementedException();
         }
 
-        public Task Send(ICommand message)
+        public Task SendAsync(ICommand message)
         {
-            throw new NotImplementedException();
+            var handlers = CommandSubscriptions[message.GetType()];
+            foreach (var handler in handlers)
+            {
+                handler.Invoke(message);
+            }
+            return Task.CompletedTask;
         }
 
         private IEnumerable<ICommand> FindCommands()
@@ -45,9 +57,9 @@ namespace ServiceBus
         private IEnumerable<IHandleMessages<ICommand>> FindCommandHandlers()
         {
             return from assembly in AppDomain.CurrentDomain.GetAssemblies()
-                   from t in assembly.GetTypes()
-                   where t.GetInterfaces().Contains(typeof(IHandleMessages<ICommand>))
-                   select t as IHandleMessages<ICommand>;
+                            from t in assembly.GetTypes()
+                            where t.GetInterfaces().Contains(typeof(IHandleMessages<ICommand>))
+                            select t as IHandleMessages<ICommand>;
         }
     }
 }

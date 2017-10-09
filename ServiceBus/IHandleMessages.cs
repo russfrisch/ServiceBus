@@ -7,6 +7,6 @@ namespace ServiceBus
 {
     public interface IHandleMessages<T>
     {
-        Task Handle(T message);
+        void Handle(T message);
     }
 }

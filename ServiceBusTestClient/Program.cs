@@ -1,4 +1,5 @@
 ﻿using ServiceBus;
+using ServiceBusTestClient.Handlers;
 using ServiceBusTestClient.Messages.Commands;
 using System;
 
@@ -9,7 +10,8 @@ namespace ServiceBusTestClient
         static void Main(string[] args)
         {
             var bus = new Bus();
-            bus.Send(new SayHelloCommand() { Name = "Russ" }).Wait();
+            bus.Subscribe(typeof(SayHelloCommand), new Action(new SayHelloMessageHandler().Handle)); 
+            bus.SendAsync(new SayHelloCommand() { Name = "Russ" }).Wait();
 
 
             Console.WriteLine("Press any key to exit...");
