@@ -1,6 +1,7 @@
 ﻿using ServiceBus;
 using ServiceBusTestClient.Handlers;
 using ServiceBusTestClient.Messages.Commands;
+using ServiceBusTestClient.Messages.Events;
 using System;
 
 namespace ServiceBusTestClient
@@ -10,9 +11,15 @@ namespace ServiceBusTestClient
         static void Main(string[] args)
         {
             var bus = new Bus();
-            bus.Subscribe<SayHelloCommand>(new SayHelloMessageHandler().Handle);
-            bus.Subscribe<SayHelloCommand>(new SayHelloMessageHandler().Handle);
-            bus.SendAsync(new SayHelloCommand() { Name = "Russ" }).Wait();
+            bus.Subscribe<SaidHelloEvent>(new SayHelloMessageHandler().Handle);
+            bus.Subscribe<SaidHelloEvent>(new SayHelloMessageHandler().Handle);
+            bus.Subscribe<SaidHelloEvent>(new SayHelloMessageHandler().Handle);
+            bus.Subscribe<SaidHelloEvent>(new SayHelloMessageHandler().Handle);
+            bus.Subscribe<SaidHelloEvent>(new SayHelloMessageHandler().Handle);
+            bus.Subscribe<SaidHelloEvent>(new SayHelloMessageHandler().Handle);
+            bus.Subscribe<SaidHelloEvent>(new SayHelloMessageHandler().Handle);
+            bus.Subscribe<SaidHelloEvent>(new SayHelloMessageHandler().Handle);
+            bus.PublishAsync(new SaidHelloEvent() { Name = "Russ" }).Wait();
 
 
             Console.WriteLine("Press any key to exit...");

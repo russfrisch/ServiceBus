@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace ServiceBus
 {
     internal interface ISubscription
     {
-        void Notify(IMessage message);
+        Task NotifyAsync(IMessage message);
     }
 }

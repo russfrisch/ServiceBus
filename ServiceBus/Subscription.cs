@@ -1,21 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace ServiceBus
 {
     internal class Subscription<T> : ISubscription where T : class, IMessage
     {
-        private readonly Action<T> _action;
+        private readonly Func<T, Task> _action;
 
-        public Subscription(Action<T> action)
+        public Subscription(Func<T, Task> action)
         {
             _action = action;
         }
 
-        public void Notify(IMessage message)
+        public async Task NotifyAsync(IMessage message)
         {
-            _action.Invoke(message as T);
+            await _action(message as T);
         }
     }
 }

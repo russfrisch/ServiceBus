@@ -27,7 +27,7 @@ namespace ServiceBus
             //Console.WriteLine($"Found {CommandHandlers.Count()} Command Handlers.");
         }
 
-        public void Subscribe<T>(Action<T> handler) where T : class, IMessage
+        public void Subscribe<T>(Func<T, Task> handler) where T : class, IMessage
         {
             if (!_subscriptions.ContainsKey(typeof(T)) || typeof(T) is ICommand)
                 _subscriptions.Add(typeof(T), new List<ISubscription>());
@@ -35,21 +35,16 @@ namespace ServiceBus
             _subscriptions[typeof(T)].Add(new Subscription<T>(handler));
         }
 
-        public Task PublishAsync(IEvent message)
+        public async Task PublishAsync(IEvent message)
         {
             var subscriptions = _subscriptions[message.GetType()];
-            foreach (var subscription in subscriptions)
-            {
-                subscription.Notify(message);
-            }
-            return Task.CompletedTask;
+            await Task.WhenAll(subscriptions.Select(s => s.NotifyAsync(message)));
         }
 
-        public Task SendAsync(ICommand message)
+        public async Task SendAsync(ICommand message)
         {
             var subscription = _subscriptions[message.GetType()].FirstOrDefault();
-            subscription.Notify(message);
-            return Task.CompletedTask;
+            await subscription.NotifyAsync(message);
         }
 
         private IEnumerable<ICommand> FindCommands()
