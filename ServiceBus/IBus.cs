@@ -9,5 +9,6 @@ namespace ServiceBus
     {
         Task SendAsync(ICommand message);
         Task PublishAsync(IEvent message);
+        void Subscribe<T>(Action<T> handler) where T : class, IMessage;
     }
 }

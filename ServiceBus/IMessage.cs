@@ -4,7 +4,7 @@ using System.Text;
 
 namespace ServiceBus
 {
-    public interface IEvent : IMessage
+    public interface IMessage
     {
     }
 }

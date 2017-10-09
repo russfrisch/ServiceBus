@@ -11,38 +11,44 @@ namespace ServiceBus
     {
         private IEnumerable<ICommand> Commands { get; set; }
         private IEnumerable<IHandleMessages<ICommand>> CommandHandlers { get; set; }
-        private Dictionary<Type, IList<Action<ICommand>>> CommandSubscriptions { get; set; }
+        private Dictionary<Type, IList<ISubscription>> _subscriptions { get; set; }
 
         public Bus()
         {
-            Console.WriteLine("Initialzing Service Bus...");
+            _subscriptions = new Dictionary<Type, IList<ISubscription>>();
+            //Console.WriteLine("Initialzing Service Bus...");
 
-            Console.WriteLine("Loading Commands...");
-            Commands = FindCommands();
-            Console.WriteLine($"Found {Commands.Count()} Commands.");
+            //Console.WriteLine("Loading Commands...");
+            //Commands = FindCommands();
+            //Console.WriteLine($"Found {Commands.Count()} Commands.");
 
-            Console.WriteLine("Loading Command Handlers...");
-            CommandHandlers = FindCommandHandlers();
-            Console.WriteLine($"Found {CommandHandlers.Count()} Command Handlers.");
+            //Console.WriteLine("Loading Command Handlers...");
+            //CommandHandlers = FindCommandHandlers();
+            //Console.WriteLine($"Found {CommandHandlers.Count()} Command Handlers.");
         }
 
-        public void Subscribe(Type messageType, Action<ICommand> handler)
+        public void Subscribe<T>(Action<T> handler) where T : class, IMessage
         {
-            CommandSubscriptions[messageType].Add(handler);
+            if (!_subscriptions.ContainsKey(typeof(T)) || typeof(T) is ICommand)
+                _subscriptions.Add(typeof(T), new List<ISubscription>());
+
+            _subscriptions[typeof(T)].Add(new Subscription<T>(handler));
         }
 
         public Task PublishAsync(IEvent message)
         {
-            throw new NotImplementedException();
+            var subscriptions = _subscriptions[message.GetType()];
+            foreach (var subscription in subscriptions)
+            {
+                subscription.Notify(message);
+            }
+            return Task.CompletedTask;
         }
 
         public Task SendAsync(ICommand message)
         {
-            var handlers = CommandSubscriptions[message.GetType()];
-            foreach (var handler in handlers)
-            {
-                handler.Invoke(message);
-            }
+            var subscription = _subscriptions[message.GetType()].FirstOrDefault();
+            subscription.Notify(message);
             return Task.CompletedTask;
         }
 

@@ -4,7 +4,8 @@ using System.Text;
 
 namespace ServiceBus
 {
-    public interface IEvent : IMessage
+    internal interface ISubscription
     {
+        void Notify(IMessage message);
     }
 }

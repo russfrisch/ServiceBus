@@ -10,7 +10,8 @@ namespace ServiceBusTestClient
         static void Main(string[] args)
         {
             var bus = new Bus();
-            bus.Subscribe(typeof(SayHelloCommand), new Action(new SayHelloMessageHandler().Handle)); 
+            bus.Subscribe<SayHelloCommand>(new SayHelloMessageHandler().Handle);
+            bus.Subscribe<SayHelloCommand>(new SayHelloMessageHandler().Handle);
             bus.SendAsync(new SayHelloCommand() { Name = "Russ" }).Wait();
 
 
