@@ -16,7 +16,7 @@ namespace ServiceBus
 
         public async Task NotifyAsync(IMessage message)
         {
-            await _action(message as T);
+            await Task.Run(() => _action(message as T));
         }
     }
 }

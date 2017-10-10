@@ -33,16 +33,22 @@ namespace ServiceBus
                 _subscriptions.Add(typeof(T), new List<ISubscription>());
 
             _subscriptions[typeof(T)].Add(new Subscription<T>(handler));
+
+            Console.WriteLine($"Subscribed {typeof(T).Name} with handler {handler.GetType().Name}.");
         }
 
         public async Task PublishAsync(IEvent message)
         {
+            Console.WriteLine($"Publishing {message.GetType().Name}.");
+
             var subscriptions = _subscriptions[message.GetType()];
             await Task.WhenAll(subscriptions.Select(s => s.NotifyAsync(message)));
         }
 
         public async Task SendAsync(ICommand message)
         {
+            Console.WriteLine($"Sending {message.GetType().Name}.");
+
             var subscription = _subscriptions[message.GetType()].FirstOrDefault();
             await subscription.NotifyAsync(message);
         }
